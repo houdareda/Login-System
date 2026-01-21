@@ -150,6 +150,32 @@
             display: block;
         }
 
+        .inline-message {
+            font-size: 13px;
+            margin-top: 6px;
+            font-weight: 600;
+            display: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .inline-message.show {
+            display: block;
+        }
+
+        .inline-message.error {
+            color: #c53030;
+            background-color: #fff5f5;
+            border: 1px solid #fc8181;
+        }
+
+        .inline-message.success {
+            color: #2f855a;
+            background-color: #f0fff4;
+            border: 1px solid #68d391;
+        }
+
         /* Notification Styles */
         .notification {
             position: fixed;
@@ -347,6 +373,7 @@
             <div class="form-group">
                 <label for="password">Password *</label>
                 <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required>
+                <div id="passwordMessage" class="inline-message"></div>
             </div>
 
             <button type="submit" class="submit-btn" id="submitBtn">
@@ -503,6 +530,36 @@
             } catch (error) {
                 console.error('❌ Error clearing localStorage:', error);
             }
+        }
+
+        // Show inline message
+        function showInlineMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            element.textContent = message;
+            element.className = 'inline-message show ' + type;
+            
+            // If it's an error, shake the input slightly
+            if (type === 'error') {
+                const inputId = elementId.replace('Message', '');
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.style.borderColor = '#fc8181';
+                    setTimeout(() => {
+                        input.style.borderColor = '#e2e8f0';
+                    }, 2000);
+                }
+            }
+        }
+
+        // Clear inline messages
+        function clearInlineMessages() {
+            const messages = document.querySelectorAll('.inline-message');
+            messages.forEach(msg => {
+                msg.className = 'inline-message';
+                msg.textContent = '';
+            });
         }
 
         // Notification functions
@@ -1295,9 +1352,15 @@
 
             if (password !== correctPassword) {
                 showNotification('كلمة المرور غير صحيحة', 'error', 4000);
+                showInlineMessage('passwordMessage', 'كلمة المرور غير صحيحة ❌', 'error');
                 passwordInput.focus();
                 return;
             }
+
+            // Clear any inline errors if valid
+            clearInlineMessages();
+            // Show inline success message immediately
+            showInlineMessage('passwordMessage', 'جاري تسجيل الطلب.. ✅', 'success');
 
             // Get leader and agent names for display
             const leaderName = leaderSelect.options[leaderSelect.selectedIndex].textContent;
@@ -1338,7 +1401,9 @@
                 });
 
                 // بما اننا مستخدمين no-cors، مش هنقدر نقرأ الرد، بس طالما الكود وصل هنا يبقى اتبعت
+                // بما اننا مستخدمين no-cors، مش هنقدر نقرأ الرد، بس طالما الكود وصل هنا يبقى اتبعت
                 showNotification('تم إرسال البيانات وتسجيل الحضور بنجاح!', 'success', 4000);
+                showInlineMessage('passwordMessage', 'تم التسجيل بنجاح! ✅', 'success');
 
                 // Save the last action performed by this agent
                 saveLastAction(agent, action);

@@ -1,5 +1,5 @@
 // 1. كل مرة ترفع تحديث، غير الرقم ده (v1 -> v2 -> v3)
-const CACHE_NAME = 'shift-point-v2'; 
+const CACHE_NAME = 'shift-point-v3'; 
 
 const ASSETS_TO_CACHE = [
   './',
